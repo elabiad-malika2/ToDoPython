@@ -1,5 +1,5 @@
-import tkinter as tk
-from tkinter import messagebox
+import tkinter as tk 
+from tkinter import messagebox ,ttk
 from tacheDB import create_task, get_all_tasks, update_task, delete_task
 
 # Fenêtre principale
@@ -15,12 +15,13 @@ liste_active = None  # savoir de quelle liste vient la sélection
 # Fonction pour ajouter une tache
 def ajouter_tache():
     texte = champ_texte.get()
+    priority=priority_var.get()
     if texte == "":
         messagebox.showwarning("Attention", "Veuillez écrire une tache")
         return
     
     try:
-        create_task(texte, "Medium", "En cours")
+        create_task(texte, priority, "En cours")
         champ_texte.delete(0, tk.END)
         afficher_taches()
         messagebox.showinfo("Succès", "Tâche ajoutée!")
@@ -34,6 +35,7 @@ def afficher_taches():
     
     try:
         taches = get_all_tasks()
+        print(taches)
         for tache in taches:
             id, contenu, status, priorite = tache
             texte_affiche = f"[{id}] {contenu} - {status} - {priorite}"
@@ -74,7 +76,7 @@ def supprimer_tache():
             tache = [t for t in taches if t[2] == "En cours"][tache_selectionnee]
         else:
             tache = [t for t in taches if t[2] == "Terminée"][tache_selectionnee]
-        
+        print(tache)
         id_tache = tache[0]
         delete_task(id_tache)
         afficher_taches()
@@ -104,6 +106,10 @@ def terminer_tache():
     except Exception as e:
         messagebox.showerror("Erreur", "Problème: " + str(e))
 
+
+ 
+
+
 # Interface utilisateur
 titre = tk.Label(fenetre, text="Ma Liste de Taches", font=("Arial", 20, "bold"), bg="lightblue")
 titre.pack(pady=10)
@@ -117,6 +123,25 @@ label_texte.pack(side=tk.LEFT)
 
 champ_texte = tk.Entry(frame_saisie, font=("Arial", 12), width=30)
 champ_texte.pack(side=tk.LEFT, padx=5)
+ # Priorité
+priority_label = tk.Label(
+            frame_saisie, 
+            text="Priorité:", 
+            font=("Segoe UI", 12, "bold"), 
+            bg="#f0f2f5", 
+        )
+        
+priority_var = tk.StringVar(value="Medium")
+priority_combo = ttk.Combobox(
+            frame_saisie, 
+            textvariable=priority_var,
+            values=["Low", "Medium", "High"],
+            state="readonly",
+            width=10,
+            font=("Segoe UI", 12)
+        )
+priority_combo.pack(side=tk.LEFT, padx=5)
+
 
 bouton_ajouter = tk.Button(frame_saisie, text="Ajouter", command=ajouter_tache, bg="green", fg="white", font=("Arial", 10))
 bouton_ajouter.pack(side=tk.LEFT, padx=5)
@@ -160,6 +185,8 @@ bouton_supprimer.pack(side=tk.LEFT, padx=5)
 
 bouton_actualiser = tk.Button(frame_boutons, text="Actualiser", command=afficher_taches, bg="purple", fg="white", font=("Arial", 10))
 bouton_actualiser.pack(side=tk.LEFT, padx=5)
+
+
 
 # Charger les tâches au démarrage
 afficher_taches()
